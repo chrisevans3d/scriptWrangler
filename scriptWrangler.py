@@ -50,7 +50,15 @@ class OutputWrapper(QtCore.QObject):
 class ScriptWrangler(QtGui.QDialog):
 	def __init__(self, parent=None):
 		super(ScriptWrangler, self).__init__(parent)
-		self.ui = loadUiWidget("C:\\Users\\chrise\\Dropbox\\python\\scriptWrangler\\scriptWrangler.ui")
+		
+		#figure out the UI file path
+		uiFile = None
+		try:
+			selfDirectory = os.path.dirname(__file__)
+			uiFile = selfDirectory + '/skinWrangler.ui'
+		except:
+			uiFile  = "D:\\github\\scriptWrangler\\scriptWrangler.ui"
+		self.ui = loadUiWidget(uiFile)
 		
 		#connect the UI to code
 		self.ui.execute_BTN.pressed.connect(self.execute_fn)
