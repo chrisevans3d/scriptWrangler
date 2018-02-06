@@ -1,11 +1,17 @@
 from PySide import QtCore, QtGui, QtUiTools
 
+import os, sys
+
+sys.path.append("d:\\github\\scriptWrangler\\")
+
 import syntax
 
 #TODO:
 # persistent scratch pads, saved on close, maybe autosave
 # store latest sizes() on resize
 # execute selected text only
+# clear the terminal window
+# get red text working
 
 def loadUiWidget(uifilename, parent=None):
 	loader = QtUiTools.QUiLoader()
@@ -52,13 +58,13 @@ class ScriptWrangler(QtGui.QDialog):
 		super(ScriptWrangler, self).__init__(parent)
 		
 		#figure out the UI file path
-		uiFile = None
-		try:
-			selfDirectory = os.path.dirname(__file__)
-			uiFile = selfDirectory + '/skinWrangler.ui'
-		except:
-			uiFile  = "D:\\github\\scriptWrangler\\scriptWrangler.ui"
+		uiFile  = "D:\\github\\scriptWrangler\\scriptWrangler.ui"
+		print 'loading', uiFile
 		self.ui = loadUiWidget(uiFile)
+		
+		#make sure it's not modal
+		#self.setModal(False)
+		#self.setWindowModality(QtCore.Qt.NonModal) 
 		
 		#connect the UI to code
 		self.ui.execute_BTN.pressed.connect(self.execute_fn)
@@ -166,8 +172,9 @@ class ScriptWrangler(QtGui.QDialog):
 			self.create_new_tab('ScratchPad')
 
 
-if __name__ == "__main__":
-	import sys
-	app = QtGui.QApplication(sys.argv)
-	main_window = ScriptWrangler()
-	sys.exit(app.exec_())
+APP = None
+if not QtGui.QApplication.instance():
+    APP = QtGui.QApplication(sys.argv)
+
+main_window = ScriptWrangler()
+main_window.show()
