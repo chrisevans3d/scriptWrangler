@@ -268,4 +268,3 @@ if not QtGui.QApplication.instance():
     APP = QtGui.QApplication(sys.argv)
 
 main_window = ScriptWrangler()
-main_window.show()
