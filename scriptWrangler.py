@@ -11,7 +11,6 @@ import syntax
 # store latest sizes() on resize
 # clear the terminal window
 # get red error text working
-# MMB click tabs to close them
 # if a user edits a loaded script, let him know that it's been edited and not saved with a * tab suffix
 # convert tabs to spaces on text copy
 
@@ -95,6 +94,10 @@ class ScriptWrangler(QtGui.QDialog):
 		#key binding
 		QtGui.QShortcut(QtGui.QKeySequence("Alt+Return"), self.ui.tabs_WID, self.execute_fn, context=QtCore.Qt.WidgetShortcut)
 		
+		#install event filter for MMB closing tabs
+		self.ui.tabs_WID.tabBar().installEventFilter(self)
+		self.ui.tabs_WID.tabBar().previousMiddleIndex = -1
+		
 		'''
 		#have the terminal start closed
 		self.sizes = self.ui.splitter.sizes()
@@ -105,6 +108,22 @@ class ScriptWrangler(QtGui.QDialog):
 		
 		self.ui.show()
 	
+	def eventFilter(self, object, event):
+		if object == self.ui.tabs_WID.tabBar() and event.type() in [QtCore.QEvent.MouseButtonPress, QtCore.QEvent.MouseButtonRelease] and event.button() == QtCore.Qt.MidButton: 
+			tabIndex = object.tabAt(event.pos())
+			if event.type() == QtCore.QEvent.MouseButtonPress:
+				object.previousMiddleIndex = tabIndex
+			else:   
+				if tabIndex != -1 and tabIndex == object.previousMiddleIndex:
+					self.onTabMiddleClick(tabIndex)                    
+				object.previousMiddleIndex = -1                        
+			return True               
+		return False
+		
+	def onTabMiddleClick(self, index):
+		self.ui.tabs_WID.removeTab(index)
+		#TODO Might need to call a close() and deleteLater() on this widget after removing the tab.
+		
 	def handleOutput(self, text, stdout):
 		color = self.ui.terminal.textColor()
 		self.ui.terminal.setTextColor(color if stdout else self._err_color)
@@ -153,6 +172,7 @@ class ScriptWrangler(QtGui.QDialog):
 		new_tab.text_wid = text_edit
 		#set tab width to feel like 4 spaces
 		new_tab.text_wid.setTabStopWidth(20)
+		new_tab.text_wid.setLineWrapMode(QtGui.QPlainTextEdit.NoWrap)
 		
 		#connect the syntax highlighter
 		highlight = syntax.PythonHighlighter(new_tab.text_wid.document())
@@ -245,7 +265,7 @@ class ScriptWrangler(QtGui.QDialog):
 
 APP = None
 if not QtGui.QApplication.instance():
-    APP = QtGui.QApplication(sys.argv)
+	APP = QtGui.QApplication(sys.argv)
 
 main_window = ScriptWrangler()
 main_window.show()
