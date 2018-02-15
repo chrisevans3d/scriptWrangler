@@ -66,7 +66,7 @@ class ScriptWrangler(QtGui.QDialog):
         super(ScriptWrangler, self).__init__(parent)
 
         # figure out the UI file path
-        uiFile = "D:\\github\\scriptWrangler\\scriptWrangler.ui"
+        uiFile = __file__.replace('.py', '.ui')
         print 'loading', uiFile
         self.ui = loadUiWidget(uiFile)
 
@@ -268,3 +268,4 @@ if not QtGui.QApplication.instance():
     APP = QtGui.QApplication(sys.argv)
 
 main_window = ScriptWrangler()
+main_window.show()
